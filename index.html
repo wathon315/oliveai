@@ -1,0 +1,2577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olive AI - Personalized Skincare Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6B8E23;
+            --primary-dark: #556B2F;
+            --primary-light: #8FBC8F;
+            --secondary: #FFE4E1;
+            --accent: #CD853F;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+            --bg: #FAFAFA;
+            --white: #FFFFFF;
+            --error: #E74C3C;
+            --success: #27AE60;
+            --border: #E0E0E0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #6B8E23 0%, #8FBC8F 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 10px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-menu {
+            position: relative;
+            display: none;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px var(--shadow);
+            padding: 1rem;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .user-info {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-email {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.5rem 0;
+            color: var(--text);
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(107, 142, 35, 0.1) 0%, rgba(143, 188, 143, 0.1) 100%);
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-subtitle {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-input.error {
+            border-color: var(--error);
+        }
+
+        .form-error {
+            color: var(--error);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .form-error.active {
+            display: block;
+        }
+
+        .modal-footer {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .modal-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .modal-link:hover {
+            text-decoration: underline;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 3rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            box-shadow: 0 10px 30px var(--shadow);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .upload-area {
+            border: 3px dashed var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(107, 142, 35, 0.05);
+        }
+
+        .upload-area.dragging {
+            border-color: var(--primary);
+            background: rgba(107, 142, 35, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            fill: var(--primary-light);
+        }
+
+        .upload-text h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .upload-text p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(107, 142, 35, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(107, 142, 35, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text);
+            border: none;
+            box-shadow: none;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg);
+            transform: none;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Analysis Status */
+        .analysis-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, var(--success) 0%, #27AE60 100%);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .analysis-status.processing {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .analysis-status.error {
+            background: linear-gradient(135deg, var(--error) 0%, #c0392b 100%);
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .analysis-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        /* Analysis ID Card */
+        .analysis-id-card {
+            background: linear-gradient(135deg, var(--secondary) 0%, rgba(255, 228, 225, 0.5) 100%);
+            border: 2px solid var(--primary-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .analysis-id-label {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .analysis-id-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            user-select: all;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .analysis-id-value:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .copy-notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .copy-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Retrieve Analysis Section */
+        .retrieve-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            box-shadow: 0 10px 30px var(--shadow);
+            text-align: center;
+        }
+
+        .retrieve-input-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            max-width: 400px;
+            margin: 1rem auto 0;
+        }
+
+        .retrieve-input {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .retrieve-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider-text {
+            background: var(--bg);
+            padding: 0 1rem;
+            position: relative;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .skin-type-badge {
+            display: inline-block;
+            background: var(--gradient);
+            color: var(--white);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+
+        .confidence-meter {
+            background: var(--border);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .confidence-fill {
+            background: var(--gradient);
+            height: 100%;
+            transition: width 1s ease-out;
+        }
+
+        .conditions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .condition-tag {
+            background: var(--secondary);
+            color: var(--text);
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* ✅ Vision API Results Styles */
+        .vision-results-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .vision-label-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(107, 142, 35, 0.05) 0%, rgba(143, 188, 143, 0.05) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(107, 142, 35, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .vision-label-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(107, 142, 35, 0.1);
+        }
+
+        .vision-label-name {
+            font-weight: 600;
+            color: var(--text);
+            text-transform: capitalize;
+            flex: 1;
+            margin-right: 1rem;
+        }
+
+        .vision-confidence {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 120px;
+        }
+
+        .vision-confidence-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .vision-confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-light) 0%, var(--primary) 100%);
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .vision-confidence-text {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.875rem;
+            min-width: 35px;
+            text-align: right;
+        }
+
+        /* Debug info styles */
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .debug-info summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .debug-info pre {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 0.5rem 0 0 0;
+        }
+
+        /* Skincare Routine Styles */
+        .routine-section {
+            margin-bottom: 2rem;
+        }
+
+        .routine-time {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .routine-steps {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .routine-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-product {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text);
+        }
+
+        .step-reason {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        /* Expert Tips Styles */
+        .tips-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(107, 142, 35, 0.05) 0%, rgba(143, 188, 143, 0.05) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(107, 142, 35, 0.1);
+        }
+
+        .tip-icon {
+            background: var(--primary-light);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tip-content {
+            flex: 1;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        /* Skin Type Description */
+        .skin-description {
+            background: linear-gradient(135deg, rgba(107, 142, 35, 0.1) 0%, rgba(143, 188, 143, 0.1) 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid rgba(107, 142, 35, 0.2);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .skin-description h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px var(--shadow);
+            transition: all 0.3s;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-category {
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0.5rem 0;
+            color: var(--text);
+        }
+
+        .product-description {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .product-link {
+            display: block;
+            text-align: center;
+            background: var(--gradient);
+            color: var(--white);
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .product-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(107, 142, 35, 0.3);
+        }
+
+        /* Environmental Factors */
+        .environmental-card {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .environmental-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .env-item {
+            text-align: center;
+        }
+
+        .env-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .env-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .env-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* History Section */
+        .history-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            box-shadow: 0 10px 30px var(--shadow);
+            display: none;
+        }
+
+        .history-section.active {
+            display: block;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s;
+        }
+
+        .history-item:hover {
+            background: var(--bg);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-date {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .history-type {
+            font-weight: 600;
+            margin: 0.25rem 0;
+            text-transform: capitalize;
+        }
+
+        .history-conditions {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #FEE;
+            color: var(--error);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-message.active {
+            display: flex;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #E8F5E8;
+            color: var(--success);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-message.active {
+            display: flex;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .nav-links { display: none; }
+            .upload-section { padding: 2rem; }
+            .products-grid { grid-template-columns: 1fr; }
+            .modal { padding: 1.5rem; }
+            .retrieve-input-group { flex-direction: column; }
+            .auth-buttons { gap: 0.5rem; }
+            .history-item { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .history-actions { width: 100%; justify-content: flex-end; }
+            
+            .vision-label-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .vision-confidence {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <a href="/" class="logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C10.3 2 8.8 2.6 7.7 3.7L3 8.4V16L7.7 20.3C8.8 21.4 10.3 22 12 22S15.2 21.4 16.3 20.3L21 15.6V8L16.3 3.7C15.2 2.6 13.7 2 12 2M12 4C13.2 4 14.2 4.4 15 5.2L19 9.2V14.8L15 18.8C14.2 19.6 13.2 20 12 20S9.8 19.6 9 18.8L5 14.8V9.2L9 5.2C9.8 4.4 10.8 4 12 4Z"/>
+                </svg>
+                Olive AI
+            </a>
+            
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#analyze">Analyze</a>
+                <a href="#products">Products</a>
+                <a href="#about">About</a>
+            </div>
+
+            <!-- Authentication Section -->
+            <div class="auth-section">
+                <!-- Logged Out State -->
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-outline" onclick="openLoginModal()">Login</button>
+                    <button class="btn" onclick="openRegisterModal()">Sign Up</button>
+                </div>
+
+                <!-- Logged In State -->
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()">
+                        <!-- User initials will be inserted here -->
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-name" id="userName"><!-- Name will be inserted --></div>
+                            <div class="user-email" id="userEmail"><!-- Email will be inserted --></div>
+                        </div>
+                        <button class="dropdown-item" onclick="showHistory()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem;">
+                                <path d="M13,3A9,9 0 0,0 4,12H1L4.89,15.89L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"/>
+                            </svg>
+                            Analysis History
+                        </button>
+                        <button class="dropdown-item" onclick="openProfileModal()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem;">
+                                <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                            </svg>
+                            Profile
+                        </button>
+                        <button class="dropdown-item" onclick="logout()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem;">
+                                <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"/>
+                            </svg>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal('loginModal')">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Welcome Back</h2>
+                <p class="modal-subtitle">Sign in to access your skin analysis history</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-input" required>
+                    <div class="form-error" id="loginEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" required>
+                    <div class="form-error" id="loginPasswordError"></div>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10,17V14H3V10H10V7L15,12L10,17M10,2H19A2,2 0 0,1 21,4V20A2,2 0 0,1 19,22H10A2,2 0 0,1 8,20V18H10V20H19V4H10V6H8V4A2,2 0 0,1 10,2Z"/>
+                    </svg>
+                    Sign In
+                </button>
+            </form>
+            <div class="modal-footer">
+                <p>Don't have an account? <a href="#" class="modal-link" onclick="switchToRegister()">Sign up here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal('registerModal')">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Join Olive AI</h2>
+                <p class="modal-subtitle">Create your account to save and track your skin analysis</p>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" for="registerName">Full Name</label>
+                    <input type="text" id="registerName" class="form-input" required>
+                    <div class="form-error" id="registerNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" class="form-input" required>
+                    <div class="form-error" id="registerEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" class="form-input" required minlength="6">
+                    <div class="form-error" id="registerPasswordError"></div>
+                    <small style="color: var(--text-light); font-size: 0.75rem;">Minimum 6 characters</small>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                    </svg>
+                    Create Account
+                </button>
+            </form>
+            <div class="modal-footer">
+                <p>Already have an account? <a href="#" class="modal-link" onclick="switchToLogin()">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Profile Settings</h2>
+                <p class="modal-subtitle">Update your personal information</p>
+            </div>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label class="form-label" for="profileName">Full Name</label>
+                    <input type="text" id="profileName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="profileEmail">Email</label>
+                    <input type="email" id="profileEmail" class="form-input" disabled>
+                    <small style="color: var(--text-light); font-size: 0.75rem;">Email cannot be changed</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="profileSkinType">Skin Type</label>
+                    <select id="profileSkinType" class="form-input">
+                        <option value="">Not specified</option>
+                        <option value="oily">Oily</option>
+                        <option value="dry">Dry</option>
+                        <option value="combination">Combination</option>
+                        <option value="normal">Normal</option>
+                        <option value="sensitive">Sensitive</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                    </svg>
+                    Update Profile
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>AI-Powered Skincare Analysis</h1>
+            <p>Upload a photo and discover your personalized skincare routine with advanced AI technology</p>
+        </div>
+    </section>
+
+    <!-- Analysis History Section -->
+    <section class="container">
+        <div class="history-section" id="historySection">
+            <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem; text-align: center;">Analysis History</h2>
+            <div id="historyContent">
+                <!-- History items will be loaded here -->
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="hideHistory()">Back to Analysis</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload Section -->
+    <section class="container">
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <svg class="upload-icon" viewBox="0 0 24 24">
+                    <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+                </svg>
+                <div class="upload-text">
+                    <h3>Upload Your Photo</h3>
+                    <p>Drag & drop your image here or click to browse</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.8rem;">Supported formats: JPG, PNG, WebP (Max 5MB)</p>
+                </div>
+                <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" />
+            </div>
+            
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" class="preview-image" alt="Preview" />
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="btn" id="analyzeBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
+                        </svg>
+                        Analyze Skin
+                    </button>
+                    <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider">
+            <span class="divider-text">OR</span>
+        </div>
+
+        <!-- Retrieve Previous Analysis -->
+        <div class="retrieve-section">
+            <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 1rem;">View Previous Analysis</h3>
+            <p style="color: var(--text-light); margin-bottom: 1.5rem;">Enter your analysis ID to view saved results</p>
+            <div class="retrieve-input-group">
+                <input type="text" 
+                       id="retrieveInput" 
+                       class="retrieve-input" 
+                       placeholder="e.g., OA-1234567890-abc123"
+                       autocomplete="off">
+                <button class="btn" id="retrieveBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
+                    </svg>
+                    Retrieve
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <h3>Analyzing your skin...</h3>
+            <p style="color: var(--text-light);">This may take a few moments</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/>
+            </svg>
+            <span id="errorText">An error occurred</span>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+            </svg>
+            <span id="successText">Success!</span>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <!-- Analysis ID Card -->
+            <div class="analysis-id-card">
+                <div class="analysis-id-label">Your Analysis ID (Valid for 24 hours)</div>
+                <div class="analysis-id-value" id="analysisIdValue" onclick="copyAnalysisId()">Loading...</div>
+                <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-light);">
+                    Click to copy • Save this ID to access your results later
+                </p>
+            </div>
+
+            <!-- Analysis Results -->
+            <div class="analysis-card">
+                <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">Your Skin Analysis</h2>
+                
+                <div>
+                    <span class="skin-type-badge" id="skinType">Loading...</span>
+                    <p style="margin: 1rem 0; color: var(--text-light);">Confidence Level: <strong id="confidenceValue">0%</strong></p>
+                    <div class="confidence-meter">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
+                </div>
+
+                <!-- Skin Type Description -->
+                <div style="margin-top: 2rem;" id="skinTypeDescription">
+                    <!-- Description will be inserted here -->
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Detected Conditions</h3>
+                    <div class="conditions-list" id="conditionsList"></div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                    <p style="color: var(--text-light); font-size: 0.875rem;">
+                        Analysis Date: <strong id="analysisDate">Loading...</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Personalized Skincare Routine -->
+            <div class="analysis-card" id="routineCard">
+                <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem; vertical-align: middle;">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20C7.59,20 4,16.41 4,12C7.59,4 12,4Z"/>
+                    </svg>
+                    Personalized Skincare Routine
+                </h2>
+                <div id="skincareRoutine">
+                    <!-- Routine will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Expert Tips -->
+            <div class="analysis-card" id="tipsCard">
+                <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem; vertical-align: middle;">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+                    </svg>
+                    Expert Tips & Recommendations
+                </h2>
+                <div id="expertTips">
+                    <!-- Tips will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Environmental Factors -->
+            <div class="environmental-card" id="environmentalCard">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Environmental Factors</h3>
+                <div class="environmental-grid" id="environmentalGrid"></div>
+                <p id="environmentalRecommendation" style="margin-top: 1.5rem; opacity: 0.9;"></p>
+            </div>
+
+            <!-- Recommended Products -->
+            <div class="analysis-card">
+                <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">Recommended Products</h2>
+                <div class="products-grid" id="productsGrid"></div>
+            </div>
+
+            <!-- New Analysis Button -->
+            <div style="text-align: center; margin: 3rem 0;">
+                <button class="btn" onclick="resetAnalysis()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                    </svg>
+                    Start New Analysis
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Copy Notification -->
+    <div class="copy-notification" id="copyNotification">
+        Analysis ID copied to clipboard!
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:3001';
+        
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const loading = document.getElementById('loading');
+        const resultsSection = document.getElementById('resultsSection');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const successMessage = document.getElementById('successMessage');
+        const successText = document.getElementById('successText');
+        const retrieveInput = document.getElementById('retrieveInput');
+        const retrieveBtn = document.getElementById('retrieveBtn');
+        const historySection = document.getElementById('historySection');
+
+        // Auth DOM Elements
+        const authButtons = document.getElementById('authButtons');
+        const userMenu = document.getElementById('userMenu');
+        const userAvatar = document.getElementById('userAvatar');
+        const userDropdown = document.getElementById('userDropdown');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+
+        // File handling
+        let selectedFile = null;
+        let currentAnalysisId = null;
+        let currentUser = null;
+
+        // Authentication State
+        let authToken = localStorage.getItem('authToken');
+
+        // Store last analysis results for debugging
+        window.lastAnalysisResults = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthState();
+            checkAPIHealth();
+            testVisionAPIConnection();
+        });
+
+        // ===== AUTHENTICATION FUNCTIONS =====
+
+        function checkAuthState() {
+            if (authToken) {
+                // Verify token and get user info
+                fetchUserProfile();
+            } else {
+                showLoggedOutState();
+            }
+        }
+
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    showLoggedInState(data.user);
+                } else {
+                    // Token invalid, clear it
+                    logout();
+                }
+            } catch (error) {
+                console.error('Failed to fetch user profile:', error);
+                logout();
+            }
+        }
+
+        function showLoggedInState(user) {
+            authButtons.style.display = 'none';
+            userMenu.style.display = 'block';
+            
+            // Set user info
+            userName.textContent = user.name;
+            userEmail.textContent = user.email;
+            
+            // Set avatar initials
+            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            userAvatar.textContent = initials;
+        }
+
+        function showLoggedOutState() {
+            authButtons.style.display = 'flex';
+            userMenu.style.display = 'none';
+            currentUser = null;
+        }
+
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('loginEmail').focus();
+        }
+
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.add('active');
+            document.getElementById('registerName').focus();
+        }
+
+        function openProfileModal() {
+            if (!currentUser) return;
+            
+            document.getElementById('profileModal').classList.add('active');
+            document.getElementById('profileName').value = currentUser.name;
+            document.getElementById('profileEmail').value = currentUser.email;
+            document.getElementById('profileSkinType').value = currentUser.skinProfile?.skinType || '';
+            closeUserDropdown();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            clearFormErrors();
+        }
+
+        function switchToRegister() {
+            closeModal('loginModal');
+            openRegisterModal();
+        }
+
+        function switchToLogin() {
+            closeModal('registerModal');
+            openLoginModal();
+        }
+
+        function toggleUserDropdown() {
+            userDropdown.classList.toggle('active');
+        }
+
+        function closeUserDropdown() {
+            userDropdown.classList.remove('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenu.contains(e.target)) {
+                closeUserDropdown();
+            }
+        });
+
+        // ===== FORM HANDLERS =====
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearFormErrors();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    currentUser = data.user;
+                    
+                    showSuccess('Login successful!');
+                    closeModal('loginModal');
+                    showLoggedInState(data.user);
+                } else {
+                    showFormError('loginPassword', data.error);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showFormError('loginPassword', 'Login failed. Please try again.');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearFormErrors();
+
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    currentUser = data.user;
+                    
+                    showSuccess('Account created successfully!');
+                    closeModal('registerModal');
+                    showLoggedInState(data.user);
+                } else {
+                    if (data.error.includes('email')) {
+                        showFormError('registerEmail', data.error);
+                    } else if (data.error.includes('password')) {
+                        showFormError('registerPassword', data.error);
+                    } else {
+                        showFormError('registerPassword', data.error);
+                    }
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showFormError('registerPassword', 'Registration failed. Please try again.');
+            }
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('profileName').value;
+            const skinType = document.getElementById('profileSkinType').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        name,
+                        skinProfile: { skinType }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser = data.user;
+                    showSuccess('Profile updated successfully!');
+                    closeModal('profileModal');
+                    showLoggedInState(data.user);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                console.error('Profile update error:', error);
+                showError('Failed to update profile. Please try again.');
+            }
+        });
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            showLoggedOutState();
+            closeUserDropdown();
+            hideHistory();
+            showSuccess('Logged out successfully!');
+        }
+
+        // ===== HISTORY FUNCTIONS =====
+
+        async function showHistory() {
+            if (!authToken) {
+                showError('Please login to view your analysis history');
+                return;
+            }
+
+            closeUserDropdown();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/history`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayHistory(data.analyses);
+                    historySection.classList.add('active');
+                    historySection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                console.error('History fetch error:', error);
+                showError('Failed to load analysis history');
+            }
+        }
+
+        function displayHistory(analyses) {
+            const historyContent = document.getElementById('historyContent');
+            
+            if (analyses.length === 0) {
+                historyContent.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" style="margin-bottom: 1rem;">
+                            <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
+                        </svg>
+                        <h3>No Analysis History</h3>
+                        <p>You haven't performed any skin analyses yet. Start your first analysis below!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            historyContent.innerHTML = analyses.map(analysis => `
+                <div class="history-item">
+                    <div class="history-info">
+                        <div class="history-date">${new Date(analysis.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</div>
+                        <div class="history-type">${analysis.skinAnalysis.skinType} skin (${analysis.skinAnalysis.confidence}% confidence)</div>
+                        <div class="history-conditions">Conditions: ${analysis.skinAnalysis.detectedConditions.join(', ').replace(/_/g, ' ')}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="btn btn-ghost" onclick="viewAnalysis('${analysis.analysisId}')">View</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function hideHistory() {
+            historySection.classList.remove('active');
+        }
+
+        async function viewAnalysis(analysisId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analysis/${analysisId}`, {
+                    headers: authToken ? {
+                        'Authorization': `Bearer ${authToken}`
+                    } : {}
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentAnalysisId = analysisId;
+                    displayResults(data.analysisResults, analysisId);
+                    hideHistory();
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                console.error('Analysis fetch error:', error);
+                showError('Failed to load analysis');
+            }
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+
+        function showFormError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + 'Error');
+            
+            field.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('active');
+        }
+
+        function clearFormErrors() {
+            document.querySelectorAll('.form-input').forEach(input => {
+                input.classList.remove('error');
+            });
+            document.querySelectorAll('.form-error').forEach(error => {
+                error.classList.remove('active');
+                error.textContent = '';
+            });
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            successText.textContent = message;
+            successMessage.classList.add('active');
+            setTimeout(() => {
+                successMessage.classList.remove('active');
+            }, 3000);
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('active');
+        }
+
+        function hideSuccess() {
+            successMessage.classList.remove('active');
+        }
+
+        // ===== FILE HANDLING =====
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // File input change
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragging');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragging');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragging');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // Handle file selection
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        // Handle file
+        function handleFile(file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                showError('Please upload a valid image file (JPG, PNG, or WebP)');
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showError('File size must be less than 5MB');
+                return;
+            }
+
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                uploadArea.style.display = 'none';
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Analyze button click
+        analyzeBtn.addEventListener('click', analyzeImage);
+
+        // Cancel button click
+        cancelBtn.addEventListener('click', () => {
+            resetUpload();
+        });
+
+        // ✅ Enhanced analyze image function with Vision API status and debugging
+        async function analyzeImage() {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+
+            loading.classList.add('active');
+            previewContainer.style.display = 'none';
+            hideError();
+            hideSuccess();
+
+            // Add analysis status indicator
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'analysis-status processing';
+            statusDiv.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
+                </svg>
+                Processing with AI analysis...
+            `;
+            loading.appendChild(statusDiv);
+
+            try {
+                const headers = {};
+                if (authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+
+                console.log('🚀 Starting image analysis...');
+                const startTime = Date.now();
+
+                const response = await fetch(`${API_BASE_URL}/api/analyze`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                });
+
+                const data = await response.json();
+                const processingTime = Date.now() - startTime;
+
+                console.log(`⏱️ Analysis completed in ${processingTime}ms`);
+                console.log('📊 Full API Response:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+
+                if (data.success && data.analysisResults) {
+                    // Store the analysis ID and results for debugging
+                    currentAnalysisId = data.analysisId;
+                    window.lastAnalysisResults = data.analysisResults;
+                    
+                    // Enhanced logging
+                    console.log('✅ Analysis successful!');
+                    console.log('🔍 Vision Labels:', data.analysisResults.visionLabels);
+                    console.log('🧴 Skin Analysis:', data.analysisResults.analysis);
+                    console.log('💡 Insights:', data.analysisResults.insights);
+                    
+                    // Update status
+                    statusDiv.className = 'analysis-status';
+                    statusDiv.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                        </svg>
+                        Analysis complete! ${data.analysisResults.visionLabels?.length || 0} features detected
+                    `;
+                    
+                    displayResults(data.analysisResults, data.analysisId);
+                    
+                    // Add debug information if available
+                    if (data.analysisResults.debug) {
+                        addDebugInformation(data.analysisResults.debug);
+                    }
+                    
+                } else {
+                    throw new Error('Invalid response format');
+                }
+            } catch (error) {
+                console.error('❌ Analysis error:', error);
+                
+                // Update status to error
+                statusDiv.className = 'analysis-status error';
+                statusDiv.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/>
+                    </svg>
+                    Analysis failed: ${error.message}
+                `;
+                
+                showError(error.message || 'Failed to analyze image. Please try again.');
+                resetUpload();
+            } finally {
+                loading.classList.remove('active');
+                // Remove status after 3 seconds
+                setTimeout(() => {
+                    if (statusDiv.parentNode) {
+                        statusDiv.remove();
+                    }
+                }, 3000);
+            }
+        }
+
+        // ✅ Function to add debug information to the results
+        function addDebugInformation(debugInfo) {
+            const resultsSection = document.getElementById('resultsSection');
+            
+            const debugDiv = document.createElement('div');
+            debugDiv.className = 'debug-info';
+            debugDiv.innerHTML = `
+                <details>
+                    <summary>🔧 Debug Information (Click to expand)</summary>
+                    <pre>${JSON.stringify(debugInfo, null, 2)}</pre>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+                        <h4>Analysis Details:</h4>
+                        <ul style="margin: 0.5rem 0;">
+                            <li><strong>Vision API:</strong> ${debugInfo.visionApiUsed ? '✅ Active' : '❌ Using Mock Data'}</li>
+                            <li><strong>Labels Detected:</strong> ${debugInfo.totalVisionLabels}</li>
+                            <li><strong>Method:</strong> ${debugInfo.analysisMethod}</li>
+                            <li><strong>Processing Time:</strong> ${debugInfo.processingTime}ms</li>
+                        </ul>
+                    </div>
+                </details>
+            `;
+            
+            // Insert debug info at the beginning of results
+            resultsSection.insertBefore(debugDiv, resultsSection.firstChild);
+        }
+
+        // ✅ Enhanced displayResults function with Vision API support and error handling
+        function displayResults(results, analysisId = null) {
+            console.log('📋 Displaying results:', results);
+            
+            const { analysis, insights, recommendedProducts, environmentalFactors, visionLabels } = results;
+
+            // Validate required data
+            if (!analysis) {
+                console.error('❌ Missing analysis data');
+                showError('Invalid analysis results received');
+                return;
+            }
+
+            // Show results section
+            resultsSection.classList.add('active');
+
+            // Display analysis ID if provided
+            if (analysisId) {
+                document.getElementById('analysisIdValue').textContent = analysisId;
+            }
+
+            // Display skin type and confidence
+            document.getElementById('skinType').textContent = analysis.skinType || 'Unknown';
+            document.getElementById('confidenceValue').textContent = `${analysis.confidence || 0}%`;
+            document.getElementById('confidenceFill').style.width = `${analysis.confidence || 0}%`;
+
+            // Display analysis date
+            const analysisDate = new Date(analysis.analysisDate || Date.now());
+            document.getElementById('analysisDate').textContent = analysisDate.toLocaleString();
+
+            // Display skin type description
+            if (insights && insights.skinTypeDescription) {
+                displaySkinTypeDescription(insights.skinTypeDescription, analysis.skinType);
+            }
+
+            // ✅ Display Google Vision API results if available
+            if (visionLabels && Array.isArray(visionLabels) && visionLabels.length > 0) {
+                console.log('👁️ Displaying Vision API Labels:', visionLabels);
+                displayVisionAPIResults(visionLabels);
+            } else {
+                console.warn('⚠️ No Vision API labels to display:', visionLabels);
+                displayVisionAPIPlaceholder();
+            }
+
+            // Display conditions
+            const conditionsList = document.getElementById('conditionsList');
+            conditionsList.innerHTML = '';
+            if (analysis.detectedConditions && Array.isArray(analysis.detectedConditions)) {
+                analysis.detectedConditions.forEach(condition => {
+                    const tag = document.createElement('span');
+                    tag.className = 'condition-tag';
+                    tag.textContent = condition.replace(/_/g, ' ');
+                    conditionsList.appendChild(tag);
+                });
+            }
+
+            // Display personalized skincare routine
+            if (insights && insights.recommendedRoutine) {
+                displaySkincareRoutine(insights.recommendedRoutine);
+            }
+
+            // Display expert tips
+            if (insights && insights.tips) {
+                displayExpertTips(insights.tips);
+            }
+
+            // Display environmental factors
+            if (environmentalFactors) {
+                displayEnvironmentalFactors(environmentalFactors);
+            }
+
+            // Display products
+            if (recommendedProducts && Array.isArray(recommendedProducts)) {
+                displayProducts(recommendedProducts);
+            }
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ✅ Function to display Vision API results
+        function displayVisionAPIResults(visionLabels) {
+            const analysisCard = document.querySelector('.analysis-card');
+            
+            // Remove any existing vision section
+            const existingVisionSection = document.querySelector('.vision-api-section');
+            if (existingVisionSection) {
+                existingVisionSection.remove();
+            }
+            
+            const visionSection = document.createElement('div');
+            visionSection.className = 'vision-api-section';
+            visionSection.style.marginTop = '2rem';
+            visionSection.style.paddingTop = '1.5rem';
+            visionSection.style.borderTop = '1px solid var(--border)';
+            
+            visionSection.innerHTML = `
+                <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
+                    </svg>
+                    Google Vision AI Detection Results
+                </h3>
+                <div class="vision-results-grid">
+                    ${visionLabels.map(label => `
+                        <div class="vision-label-item">
+                            <div class="vision-label-name">${label.description}</div>
+                            <div class="vision-confidence">
+                                <div class="vision-confidence-bar">
+                                    <div class="vision-confidence-fill" style="width: ${Math.round(label.score * 100)}%"></div>
+                                </div>
+                                <span class="vision-confidence-text">${Math.round(label.score * 100)}%</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="margin-top: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(107, 142, 35, 0.1) 0%, rgba(143, 188, 143, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--primary);">
+                    <h4 style="margin-bottom: 0.5rem; color: var(--primary);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5rem;">
+                            <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
+                        </svg>
+                        AI Analysis Explanation
+                    </h4>
+                    <p style="color: var(--text-light); font-size: 0.875rem; line-height: 1.5; margin: 0;">
+                        These are the raw detection results from Google's Vision AI. Our skincare analysis processes these labels 
+                        to identify skin-related features and determine your skin type and concerns. Higher confidence percentages indicate 
+                        stronger detection certainty.
+                    </p>
+                </div>
+            `;
+            
+            const skinTypeDescription = document.getElementById('skinTypeDescription');
+            if (skinTypeDescription && skinTypeDescription.nextSibling) {
+                skinTypeDescription.parentNode.insertBefore(visionSection, skinTypeDescription.nextSibling);
+            } else if (skinTypeDescription) {
+                skinTypeDescription.parentNode.appendChild(visionSection);
+            } else {
+                analysisCard.appendChild(visionSection);
+            }
+        }
+
+        // ✅ Function to show placeholder when no Vision API results
+        function displayVisionAPIPlaceholder() {
+            const analysisCard = document.querySelector('.analysis-card');
+            
+            // Remove any existing vision section
+            const existingVisionSection = document.querySelector('.vision-api-section');
+            if (existingVisionSection) {
+                existingVisionSection.remove();
+            }
+            
+            const visionSection = document.createElement('div');
+            visionSection.className = 'vision-api-section';
+            visionSection.style.marginTop = '2rem';
+            visionSection.style.paddingTop = '1.5rem';
+            visionSection.style.borderTop = '1px solid var(--border)';
+            
+            visionSection.innerHTML = `
+                <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
+                    </svg>
+                    AI Detection Results
+                </h3>
+                <div style="padding: 2rem; text-align: center; background: #f8f9fa; border-radius: 8px; border: 2px dashed #dee2e6;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="#6c757d" style="margin-bottom: 1rem;">
+                        <path d="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"/>
+                    </svg>
+                    <p style="color: #6c757d; margin: 0;">
+                        No Vision API detection results available. This may indicate the system is using mock analysis mode.
+                    </p>
+                </div>
+            `;
+            
+            const skinTypeDescription = document.getElementById('skinTypeDescription');
+            if (skinTypeDescription && skinTypeDescription.nextSibling) {
+                skinTypeDescription.parentNode.insertBefore(visionSection, skinTypeDescription.nextSibling);
+            } else if (skinTypeDescription) {
+                skinTypeDescription.parentNode.appendChild(visionSection);
+            } else {
+                analysisCard.appendChild(visionSection);
+            }
+        }
+
+        // Display skin type description
+        function displaySkinTypeDescription(description, skinType) {
+            const descriptionContainer = document.getElementById('skinTypeDescription');
+            
+            descriptionContainer.innerHTML = `
+                <div class="skin-description">
+                    <h4>About Your ${skinType.charAt(0).toUpperCase() + skinType.slice(1)} Skin</h4>
+                    <p>${description}</p>
+                </div>
+            `;
+        }
+
+        // Display personalized skincare routine
+        function displaySkincareRoutine(routine) {
+            const routineContainer = document.getElementById('skincareRoutine');
+            
+            const routineHTML = routine.map(timeSlot => `
+                <div class="routine-section">
+                    <div class="routine-time">
+                        ${timeSlot.time === 'morning' 
+                            ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.36,12.31 6.2,9.5 6.04,6.68C3.23,9.82 3.34,14.4 6.35,17.41C9.37,20.43 14,20.54 17.33,17.97Z"/></svg>'
+                            : '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.36,12.31 6.2,9.5 6.04,6.68C3.23,9.82 3.34,14.4 6.35,17.41C9.37,20.43 14,20.54 17.33,17.97Z"/></svg>'
+                        }
+                        ${timeSlot.time.charAt(0).toUpperCase() + timeSlot.time.slice(1)} Routine
+                    </div>
+                    <div class="routine-steps">
+                        ${timeSlot.steps.map(step => `
+                            <div class="routine-step">
+                                <div class="step-number">${Math.floor(step.step)}</div>
+                                <div class="step-content">
+                                    <div class="step-product">${step.product}</div>
+                                    <div class="step-reason">${step.reason}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            routineContainer.innerHTML = routineHTML;
+        }
+
+        // Display expert tips
+        function displayExpertTips(tips) {
+            const tipsContainer = document.getElementById('expertTips');
+            
+            const tipsHTML = tips.map((tip, index) => `
+                <div class="tip-item">
+                    <div class="tip-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+                        </svg>
+                    </div>
+                    <div class="tip-content">${tip}</div>
+                </div>
+            `).join('');
+            
+            tipsContainer.innerHTML = `<div class="tips-grid">${tipsHTML}</div>`;
+        }
+
+        // Display environmental factors
+        function displayEnvironmentalFactors(factors) {
+            const grid = document.getElementById('environmentalGrid');
+            grid.innerHTML = `
+                <div class="env-item">
+                    <div class="env-icon">🌡️</div>
+                    <div class="env-value">${factors.temperature}°C</div>
+                    <div class="env-label">Temperature</div>
+                </div>
+                <div class="env-item">
+                    <div class="env-icon">💧</div>
+                    <div class="env-value">${factors.humidity}%</div>
+                    <div class="env-label">Humidity</div>
+                </div>
+                <div class="env-item">
+                    <div class="env-icon">☀️</div>
+                    <div class="env-value">${factors.uvIndex}</div>
+                    <div class="env-label">UV Index</div>
+                </div>
+                <div class="env-item">
+                    <div class="env-icon">🌫️</div>
+                    <div class="env-value">${factors.pollution}</div>
+                    <div class="env-label">Air Quality</div>
+                </div>
+            `;
+            
+            document.getElementById('environmentalRecommendation').textContent = factors.recommendation;
+        }
+
+        // Display products
+        function displayProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-category">${product.category}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">$${product.price}</div>
+                        <a href="${product.affiliate_link}" target="_blank" class="product-link">
+                            View Product
+                        </a>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Reset upload
+        function resetUpload() {
+            selectedFile = null;
+            fileInput.value = '';
+            uploadArea.style.display = 'block';
+            previewContainer.style.display = 'none';
+            loading.classList.remove('active');
+        }
+
+        // Reset analysis
+        function resetAnalysis() {
+            resetUpload();
+            resultsSection.classList.remove('active');
+            hideHistory();
+            currentAnalysisId = null;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Copy analysis ID to clipboard
+        function copyAnalysisId() {
+            const analysisId = document.getElementById('analysisIdValue').textContent;
+            if (analysisId && analysisId !== 'Loading...') {
+                navigator.clipboard.writeText(analysisId).then(() => {
+                    showCopyNotification();
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+            }
+        }
+
+        // Show copy notification
+        function showCopyNotification() {
+            const notification = document.getElementById('copyNotification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Retrieve analysis by ID (Updated to include auth token)
+        async function retrieveAnalysis() {
+            const analysisId = retrieveInput.value.trim();
+            
+            if (!analysisId) {
+                showError('Please enter an analysis ID');
+                return;
+            }
+
+            loading.classList.add('active');
+            hideError();
+            hideSuccess();
+
+            try {
+                const headers = {};
+                if (authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/api/analysis/${analysisId}`, {
+                    headers: headers
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis not found');
+                }
+
+                if (data.success && data.analysisResults) {
+                    currentAnalysisId = analysisId;
+                    window.lastAnalysisResults = data.analysisResults;
+                    displayResults(data.analysisResults, analysisId);
+                    retrieveInput.value = '';
+                } else {
+                    throw new Error('Analysis not found or expired');
+                }
+            } catch (error) {
+                console.error('Retrieve error:', error);
+                showError(error.message || 'Failed to retrieve analysis. Please check the ID and try again.');
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // Add event listeners for retrieve functionality
+        retrieveBtn.addEventListener('click', retrieveAnalysis);
+        retrieveInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                retrieveAnalysis();
+            }
+        });
+
+        // Check API health on load
+        async function checkAPIHealth() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/health`);
+                const data = await response.json();
+                console.log('API Health:', data);
+            } catch (error) {
+                console.error('API not available:', error);
+                showError('Unable to connect to the server. Please ensure the backend is running.');
+            }
+        }
+
+        // Test Vision API connection
+        async function testVisionAPIConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/health`);
+                const data = await response.json();
+                
+                console.log('🏥 API Health Check:', data);
+                
+                if (data.vision === 'available') {
+                    console.log('✅ Google Vision API is available');
+                } else {
+                    console.log('⚠️ Google Vision API is in mock mode');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('❌ API Health Check failed:', error);
+                return null;
+            }
+        }
+
+        // ✅ Global debugging function - call this in browser console
+        window.debugOliveAI = function() {
+            console.log('🔧 Olive AI Debug Information:');
+            console.log('Current User:', currentUser);
+            console.log('Auth Token:', authToken ? 'Present' : 'None');
+            console.log('Current Analysis ID:', currentAnalysisId);
+            console.log('Last Analysis Results:', window.lastAnalysisResults);
+            console.log('Results Section Active:', resultsSection.classList.contains('active'));
+            testVisionAPIConnection();
+        };
+
+        // ✅ Debug function for Vision API - paste this in browser console
+        window.debugVisionAPI = function() {
+            console.log('🔍 Vision API Debug:');
+            console.log('Current results:', window.lastAnalysisResults);
+            
+            if (window.lastAnalysisResults && window.lastAnalysisResults.visionLabels) {
+                console.log('Vision Labels Found:', window.lastAnalysisResults.visionLabels);
+                window.lastAnalysisResults.visionLabels.forEach((label, index) => {
+                    console.log(`${index + 1}. ${label.description} - ${Math.round(label.score * 100)}%`);
+                });
+            } else {
+                console.log('No Vision Labels found in last results');
+            }
+            
+            // Test API health
+            fetch(`${API_BASE_URL}/api/health`)
+                .then(r => r.json())
+                .then(data => console.log('API Health:', data));
+        };
+
+        // Make functions globally accessible
+        window.copyAnalysisId = copyAnalysisId;
+        window.showHistory = showHistory;
+        window.hideHistory = hideHistory;
+        window.viewAnalysis = viewAnalysis;
+        window.openLoginModal = openLoginModal;
+        window.openRegisterModal = openRegisterModal;
+        window.openProfileModal = openProfileModal;
+        window.closeModal = closeModal;
+        window.switchToRegister = switchToRegister;
+        window.switchToLogin = switchToLogin;
+        window.toggleUserDropdown = toggleUserDropdown;
+        window.logout = logout;
+        window.resetAnalysis = resetAnalysis;
+    </script>
+</body>
+</html>
