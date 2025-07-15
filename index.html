@@ -20,6 +20,7 @@
                 <a href="#analyze" onclick="navigateToPage('analyze')">Analyze</a>
                 <a href="#products" onclick="navigateToPage('products')">Products</a>
                 <a href="#about" onclick="navigateToPage('about')">About</a>
+                <a href="#feedback" onclick="navigateToPage('feedback')">Feedback</a>
             </div>
 
             <!-- Authentication Section -->
@@ -404,6 +405,16 @@
                     </svg>
                     Start New Analysis
                 </button>
+                
+                <div style="margin-top: 2rem; padding: 2rem; background: #f0f8ff; border-radius: 12px;">
+                    <p style="color: var(--text); margin-bottom: 1rem;">How was your experience with Olive AI?</p>
+                    <button class="btn btn-outline" onclick="navigateToPage('feedback')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M11,24H13V22H11V24M7,24H9V22H7V24M15,24H17V22H15V24Z"/>
+                        </svg>
+                        Share Feedback
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -501,6 +512,77 @@
                         <h4 style="margin-bottom: 0.5rem;">Expert Insights</h4>
                         <p style="opacity: 0.9; font-size: 0.9rem;">Dermatologist-approved recommendations</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feedback Page -->
+    <section class="container page-section feedback-page" style="display: none;">
+        <div style="padding: 4rem 0; max-width: 600px; margin: 0 auto;">
+            <h1 style="font-family: 'Playfair Display', serif; text-align: center; margin-bottom: 3rem;">We Value Your Feedback</h1>
+            
+            <div style="background: #e1f0f2; border-radius: 16px; padding: 3rem; box-shadow: 0 10px 30px var(--shadow);">
+                <p style="text-align: center; color: var(--text); margin-bottom: 2rem; font-size: 1.1rem;">
+                    Help us improve Olive AI by sharing your experience and suggestions
+                </p>
+                
+                <form id="feedbackForm">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Name (Optional)</label>
+                        <input type="text" id="feedbackName" placeholder="Your name" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; font-family: inherit;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Email (Optional)</label>
+                        <input type="email" id="feedbackEmail" placeholder="your@email.com" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; font-family: inherit;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">How would you rate your experience?</label>
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <button type="button" class="rating-star" data-rating="1" style="background: none; border: none; font-size: 2rem; cursor: pointer; padding: 0.25rem; filter: grayscale(100%); opacity: 0.3; transition: all 0.2s;">⭐</button>
+                            <button type="button" class="rating-star" data-rating="2" style="background: none; border: none; font-size: 2rem; cursor: pointer; padding: 0.25rem; filter: grayscale(100%); opacity: 0.3; transition: all 0.2s;">⭐</button>
+                            <button type="button" class="rating-star" data-rating="3" style="background: none; border: none; font-size: 2rem; cursor: pointer; padding: 0.25rem; filter: grayscale(100%); opacity: 0.3; transition: all 0.2s;">⭐</button>
+                            <button type="button" class="rating-star" data-rating="4" style="background: none; border: none; font-size: 2rem; cursor: pointer; padding: 0.25rem; filter: grayscale(100%); opacity: 0.3; transition: all 0.2s;">⭐</button>
+                            <button type="button" class="rating-star" data-rating="5" style="background: none; border: none; font-size: 2rem; cursor: pointer; padding: 0.25rem; filter: grayscale(100%); opacity: 0.3; transition: all 0.2s;">⭐</button>
+                        </div>
+                        <input type="hidden" id="feedbackRating" value="0">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Feedback Category</label>
+                        <select id="feedbackCategory" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: white; font-family: inherit;">
+                            <option value="">Select a category</option>
+                            <option value="analysis-accuracy">Analysis Accuracy</option>
+                            <option value="user-experience">User Experience</option>
+                            <option value="product-recommendations">Product Recommendations</option>
+                            <option value="technical-issues">Technical Issues</option>
+                            <option value="feature-request">Feature Request</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Your Message</label>
+                        <textarea id="feedbackMessage" rows="5" required placeholder="Share your thoughts, suggestions, or report issues..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                        </svg>
+                        Submit Feedback
+                    </button>
+                </form>
+                
+                <div id="feedbackSuccess" style="display: none; text-align: center; padding: 2rem;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="var(--primary)" style="margin-bottom: 1rem;">
+                        <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+                    </svg>
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Thank You!</h3>
+                    <p style="color: var(--text-light);">Your feedback has been submitted successfully.</p>
+                    <button class="btn btn-secondary" onclick="resetFeedbackForm()" style="margin-top: 1rem;">Submit Another</button>
                 </div>
             </div>
         </div>
@@ -1593,7 +1675,7 @@
                         <div class="product-category">${product.category}</div>
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
-                        <div class="product-price">$${product.price}</div>
+                        <div class="product-price">${product.price}</div>
                         <a href="${product.affiliate_link}" target="_blank" class="product-link">
                             View Product
                         </a>
@@ -1729,6 +1811,101 @@
             }
         }
 
+        // ===== FEEDBACK FUNCTIONS =====
+        
+        let selectedRating = 0;
+        
+        // Initialize rating stars
+        document.querySelectorAll('.rating-star').forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                document.getElementById('feedbackRating').value = selectedRating;
+                updateStarDisplay(selectedRating);
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = parseInt(this.dataset.rating);
+                updateStarDisplay(hoverRating);
+            });
+        });
+        
+        // Reset star display on mouse leave
+        document.querySelector('.feedback-page')?.addEventListener('mouseleave', function(e) {
+            if (!e.target.closest('.rating-star')) {
+                updateStarDisplay(selectedRating);
+            }
+        });
+        
+        function updateStarDisplay(rating) {
+            document.querySelectorAll('.rating-star').forEach((star, index) => {
+                if (index < rating) {
+                    star.style.filter = 'grayscale(0%)';
+                    star.style.opacity = '1';
+                    star.style.transform = 'scale(1.1)';
+                } else {
+                    star.style.filter = 'grayscale(100%)';
+                    star.style.opacity = '0.3';
+                    star.style.transform = 'scale(1)';
+                }
+            });
+        }
+        
+        // Handle feedback form submission
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (selectedRating === 0) {
+                showError('Please select a rating');
+                return;
+            }
+            
+            const feedbackData = {
+                name: document.getElementById('feedbackName').value || 'Anonymous',
+                email: document.getElementById('feedbackEmail').value || null,
+                rating: selectedRating,
+                category: document.getElementById('feedbackCategory').value,
+                message: document.getElementById('feedbackMessage').value
+            };
+            
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(feedbackData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('feedbackForm').style.display = 'none';
+                    document.getElementById('feedbackSuccess').style.display = 'block';
+                    showSuccess('Thank you for your feedback!');
+                } else {
+                    throw new Error(data.error || 'Failed to submit feedback');
+                }
+            } catch (error) {
+                console.error('Feedback submission error:', error);
+                showError(error.message || 'Failed to submit feedback. Please try again.');
+            }
+        });
+        
+        function resetFeedbackForm() {
+            document.getElementById('feedbackForm').reset();
+            selectedRating = 0;
+            updateStarDisplay(0);
+            document.getElementById('feedbackRating').value = 0;
+            document.getElementById('feedbackForm').style.display = 'block';
+            document.getElementById('feedbackSuccess').style.display = 'none';
+        }
+
         // ✅ Global debugging function - call this in browser console
         window.debugOliveAI = function() {
             console.log('🔧 Olive AI Debug Information:');
@@ -1762,6 +1939,7 @@
 
         // Make functions globally accessible
         window.copyAnalysisId = copyAnalysisId;
+        window.resetFeedbackForm = resetFeedbackForm;
         window.showHistory = showHistory;
         window.hideHistory = hideHistory;
         window.viewAnalysis = viewAnalysis;
