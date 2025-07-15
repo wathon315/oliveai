@@ -1779,16 +1779,24 @@
         });
 
         // Check API health on load
-        async function checkAPIHealth() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/health`);
-                const data = await response.json();
-                console.log('API Health:', data);
-            } catch (error) {
-                console.error('API not available:', error);
-                showError('Unable to connect to the server. Please ensure the backend is running.');
-            }
-        }
+       async function checkAPIHealth() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            // Remove credentials if not needed for public endpoints
+            // credentials: 'include'
+        });
+        const data = await response.json();
+        console.log('API Health:', data);
+    } catch (error) {
+        console.error('API not available:', error);
+        showError('Unable to connect to the server. Please ensure the backend is running.');
+    }
+}
 
         // Test Vision API connection
         async function testVisionAPIConnection() {
