@@ -4,7 +4,7 @@
             box-sizing: border-box;
         }
 
-            :root { 
+            :root {
             --primary: #222E45;
             --primary-dark: #AA6754;
             --primary-light: #8E494B;
@@ -736,7 +736,21 @@
             min-width: 35px;
             text-align: right;
         }
-
+  /* Rating Stars */
+       .rating-star {
+           filter: grayscale(100%);
+           opacity: 0.3;
+           transition: all 0.2s ease;
+       }
+       
+       .rating-star:hover {
+           transform: scale(1.2);
+       }
+       
+       .rating-star.active {
+           filter: grayscale(0%);
+           opacity: 1;
+       }
         /* Debug info styles */
         .debug-info {
             background: #f8f9fa;
